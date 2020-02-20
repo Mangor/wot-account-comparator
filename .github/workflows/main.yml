@@ -1,32 +1,35 @@
-name: Build
+name: Qrator
 on:
-  push:
-    branches:
-      - master
+  pull_request:
+    types: [opened, reopened]
+  pull_request_review_comment:
+    types: [created, deleted]
 
 jobs:
-  build:
+  sender:
+    name: sender
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [12.x]
 
     steps:
       - uses: actions/checkout@v1
 
-      - name: Cache node modules
-        uses: actions/cache@v1
+      - name: pull request send custom message with args
+        uses: appleboy/telegram-action@master
+        if: github.event_name == 'pull_request'
         with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-      - name: Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node-version }}
+          to: ${{ secrets.tg_chat_id }}
+          token: ${{ secrets.tg_token }}
+          format: html
+          args: |+
+                ${{ github.actor }} відкрив Pull Request <a href=\"${{ github.event.pull_request.html_url }}\">${{ github.event.pull_request.title }}</a>
 
-      - name: npm ci and npm run build
-        run: |
-          npm ci
-          npm run build
+      - name: pull request review comment send custom message with args
+        uses: appleboy/telegram-action@master
+        if: github.event_name == 'pull_request_review_comment'
+        with:
+          to: ${{ secrets.tg_chat_id }}
+          token: ${{ secrets.tg_token }}
+          format: html
+          args: |+
+                ${{ github.actor }} прокоментував <a href=\"${{ github.event.comment.html_url }}\">${{ github.event.pull_request.title }}</a>:
+                <pre>${{ github.event.comment.body }}</pre>
