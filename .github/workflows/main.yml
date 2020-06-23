@@ -3,7 +3,7 @@ on:
   pull_request:
     types: [opened, reopened]
   pull_request_review_comment:
-    types: [created, deleted]
+    types: [created]
 
 jobs:
   sender:
@@ -21,7 +21,7 @@ jobs:
           token: ${{ secrets.tg_token }}
           format: html
           args: |+
-                ${{ github.actor }} відкрив Pull Request <a href=\"${{ github.event.pull_request.html_url }}\">${{ github.event.pull_request.title }}</a>
+                ${{ github.actor }} відкрив PR <a href=\"${{ github.event.pull_request.html_url }}\">${{ github.event.pull_request.title }}</a>
 
       - name: pull request review comment send custom message with args
         uses: appleboy/telegram-action@master
