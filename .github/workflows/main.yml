@@ -21,7 +21,7 @@ jobs:
         id: find_jira_issue_id
         uses: atlassian/gajira-find-issue-key@master
         with:
-          from: branch
+          from: commits
 
       - name: Jira Issue Transition
         uses: atlassian/gajira-transition@v2.0.1
