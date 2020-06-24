@@ -9,6 +9,7 @@ jobs:
     name: Move ticket to QA
     runs-on: ubuntu-latest
 
+
     steps:
       - name: Login
         uses: atlassian/gajira-login@master
