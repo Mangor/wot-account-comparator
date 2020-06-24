@@ -1,35 +1,25 @@
 name: Qrator
 on:
-  pull_request:
-    types: [opened, reopened]
-  pull_request_review_comment:
-    types: [created]
+  push:
+    branches:
+      - dev
 
 jobs:
   sender:
-    name: sender
+    name: Move ticket to QA
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v1
+      - name: Login
+        uses: atlassian/gajira-login@master
+        env:
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
 
-      - name: pull request send custom message with args
-        uses: appleboy/telegram-action@master
-        if: github.event_name == 'pull_request'
+      - name: Jira Issue Transition
+        uses: atlassian/gajira-transition@v2.0.1
         with:
-          to: ${{ secrets.tg_chat_id }}
-          token: ${{ secrets.tg_token }}
-          format: html
-          args: |+
-                ${{ github.actor }} відкрив PR <a href=\"${{ github.event.pull_request.html_url }}\">${{ github.event.pull_request.title }}</a>
-
-      - name: pull request review comment send custom message with args
-        uses: appleboy/telegram-action@master
-        if: github.event_name == 'pull_request_review_comment'
-        with:
-          to: ${{ secrets.tg_chat_id }}
-          token: ${{ secrets.tg_token }}
-          format: html
-          args: |+
-                ${{ github.actor }} прокоментував <a href=\"${{ github.event.comment.html_url }}\">${{ github.event.pull_request.title }}</a>:
-                <pre>${{ github.event.comment.body }}</pre>
+          # issue: ${{ steps.create.outputs.issue }}
+          issue: SOA-4415
+          transition: "QA"
