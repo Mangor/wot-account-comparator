@@ -17,9 +17,14 @@ jobs:
           JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
 
+      - name: Find in commit messages
+        id: find_jira_issue_id
+        uses: atlassian/gajira-find-issue-key@master
+        with:
+          from: branch
+
       - name: Jira Issue Transition
         uses: atlassian/gajira-transition@v2.0.1
         with:
-          # issue: ${{ steps.create.outputs.issue }}
-          issue: SOA-4415
+          issue: ${{ steps.find_jira_issue_id.outputs.issue }}
           transition: "QA"
